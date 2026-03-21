@@ -1,6 +1,6 @@
-import express from 'express';
-import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
+import type { Request, Response } from 'express';
+import express from 'express';
 
 dotenv.config();
 
@@ -10,6 +10,12 @@ const port = process.env.PORT || 3000;
 // defining a route and a callback function
 app.get('/', (req: Request, res: Response) => {
   res.send('hello');
+});
+
+app.get('/api/hello', (req: Request, res: Response) => {
+  res.json({
+    message: 'hello babab',
+  });
 });
 
 app.listen(port, () => {
