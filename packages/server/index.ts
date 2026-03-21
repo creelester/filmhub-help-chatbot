@@ -10,16 +10,16 @@ const port = process.env.PORT || 3000;
 // Routes
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('hello');
+   res.send('hello');
 });
 
 app.get('/api/hello', (req: Request, res: Response) => {
-  res.json({
-    message: 'hello babab',
-  });
+   res.json({
+      message: 'hello babab',
+   });
 });
 
 // Server starter
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+   console.log(`Server is running on http://localhost:${port}`);
 });
