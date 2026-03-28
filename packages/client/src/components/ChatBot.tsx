@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState, type KeyboardEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
@@ -43,7 +44,6 @@ const ChatBot = () => {
             role: 'bot',
          },
       ]); // with prev lambda funct use the latest version of the messages array
-      console.log(messages);
    };
 
    const submitHandler = handleSubmit(onSubmit);
@@ -56,13 +56,14 @@ const ChatBot = () => {
    };
 
    return (
-      <div>
+      <div className="font-sans text-sm">
          <div className="flex flex-col gap-3 mb-10">
             {messages.map((msg, index) => (
                <div
-                  className={`px-3 py-1 rounded-xl ${msg.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-100 text-black self-start'}`}
+                  key={index}
+                  className={`px-5 py-3 rounded-xl ${msg.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-100 text-black self-start'}`}
                >
-                  <p key={index}>{msg.content}</p>
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
                </div>
             ))}
          </div>
