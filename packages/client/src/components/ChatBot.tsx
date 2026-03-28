@@ -8,23 +8,42 @@ import { Textarea } from './ui/textarea';
 type FormData = {
    prompt: string;
 };
+
 type ChatResponse = {
    message: string;
 };
+
+type Message = {
+   content: string;
+   role: 'user' | 'bot';
+};
+
 const ChatBot = () => {
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
-   const [messages, setMessages] = useState<string[]>([]);
+   const [messages, setMessages] = useState<Message[]>([]);
    const [conversationId] = useState(() => crypto.randomUUID());
 
    const onSubmit = async ({ prompt }: FormData) => {
       reset();
-      setMessages((prev) => [...prev, prompt]);
+      setMessages((prev) => [
+         ...prev,
+         {
+            content: prompt,
+            role: 'user',
+         },
+      ]);
       const { data } = await axios.post<ChatResponse>('/api/chat', {
          prompt,
          conversationId,
       });
-      setMessages((prev) => [...prev, data.message]); // use the latest version of the messages array
-      console.log(data);
+      setMessages((prev) => [
+         ...prev,
+         {
+            content: data.message,
+            role: 'bot',
+         },
+      ]); // with prev lambda funct use the latest version of the messages array
+      console.log(messages);
    };
 
    const submitHandler = handleSubmit(onSubmit);
@@ -38,9 +57,13 @@ const ChatBot = () => {
 
    return (
       <div>
-         <div>
+         <div className="flex flex-col gap-3 mb-10">
             {messages.map((msg, index) => (
-               <p key={index}>{msg}</p>
+               <div
+                  className={`px-3 py-1 rounded-xl ${msg.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-100 text-black self-start'}`}
+               >
+                  <p key={index}>{msg.content}</p>
+               </div>
             ))}
          </div>
          <form
