@@ -72,8 +72,8 @@ const ChatBot = () => {
             {isBotTyping && (
                <div className="flex px-3 py-3 gap-1 self-start bg-gray-200 rounded-2xl">
                   <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse" />
-                  <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse" />
-                  <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse" />
+                  <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse [animation-delay:0.2s]" />
+                  <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse [animation-delay:0.4s]" />
                </div>
             )}
          </div>
