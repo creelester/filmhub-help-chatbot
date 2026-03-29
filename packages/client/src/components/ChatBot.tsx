@@ -1,5 +1,11 @@
 import axios from 'axios';
-import { useState, type KeyboardEvent } from 'react';
+import {
+   useEffect,
+   useRef,
+   useState,
+   type ClipboardEvent,
+   type KeyboardEvent,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
@@ -24,6 +30,7 @@ const ChatBot = () => {
    const [messages, setMessages] = useState<Message[]>([]);
    const [conversationId] = useState(() => crypto.randomUUID());
    const [isBotTyping, setIsBotTyping] = useState<boolean>(false);
+   const formRef = useRef<HTMLFormElement | null>(null);
 
    const onSubmit = async ({ prompt }: FormData) => {
       reset();
@@ -58,11 +65,25 @@ const ChatBot = () => {
       }
    };
 
+   useEffect(() => {
+      formRef.current?.scrollIntoView({
+         behavior: 'smooth',
+      });
+   }, [messages]);
+
+   const onCopySelection = (e: ClipboardEvent<HTMLDivElement>): void => {
+      const selection = window.getSelection()?.toString().trim();
+      if (selection) {
+         e.preventDefault();
+         e.clipboardData.setData('text/plain', selection);
+      }
+   };
    return (
       <div className="font-sans text-sm">
          <div className="flex flex-col gap-3 mb-10">
             {messages.map((msg, index) => (
                <div
+                  onCopy={onCopySelection}
                   key={index}
                   className={`px-5 py-3 rounded-xl ${msg.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-100 text-black self-start'}`}
                >
@@ -81,6 +102,7 @@ const ChatBot = () => {
             onSubmit={submitHandler}
             onKeyDown={onKeyDown}
             className="flex flex-col gap-2 items-end border-2 p-4 rounded-xl"
+            ref={formRef}
          >
             <Textarea
                {...register('prompt', {
