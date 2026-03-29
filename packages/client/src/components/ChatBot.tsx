@@ -28,12 +28,12 @@ type Message = {
 const ChatBot = () => {
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
    const [messages, setMessages] = useState<Message[]>([]);
+   const [error, setError] = useState('');
    const [conversationId] = useState(() => crypto.randomUUID());
    const [isBotTyping, setIsBotTyping] = useState<boolean>(false);
-   const formRef = useRef<HTMLFormElement | null>(null);
+   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
    const onSubmit = async ({ prompt }: FormData) => {
-      reset();
       setMessages((prev) => [
          ...prev,
          {
@@ -42,18 +42,26 @@ const ChatBot = () => {
          },
       ]);
       setIsBotTyping(true);
-      const { data } = await axios.post<ChatResponse>('/api/chat', {
-         prompt,
-         conversationId,
-      });
-      setMessages((prev) => [
-         ...prev,
-         {
-            content: data.message,
-            role: 'bot',
-         },
-      ]); // with prev lambda funct use the latest version of the messages array
-      setIsBotTyping(false);
+      setError('');
+      reset({ prompt: '' });
+
+      try {
+         const { data } = await axios.post<ChatResponse>('/api/chat', {
+            prompt,
+            conversationId,
+         });
+         setMessages((prev) => [
+            ...prev,
+            {
+               content: data.message,
+               role: 'bot',
+            },
+         ]); // with prev lambda funct use the latest version of the messages array
+      } catch (err) {
+         setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+         setIsBotTyping(false);
+      }
    };
 
    const submitHandler = handleSubmit(onSubmit);
@@ -66,10 +74,14 @@ const ChatBot = () => {
    };
 
    useEffect(() => {
-      formRef.current?.scrollIntoView({
+      lastMessageRef.current?.scrollIntoView({
          behavior: 'smooth',
       });
    }, [messages]);
+
+   useEffect(() => {
+      console.log(error);
+   }, [error]);
 
    const onCopySelection = (e: ClipboardEvent<HTMLDivElement>): void => {
       const selection = window.getSelection()?.toString().trim();
@@ -79,17 +91,20 @@ const ChatBot = () => {
       }
    };
    return (
-      <div className="font-sans text-sm">
-         <div className="flex flex-col gap-3 mb-10">
+      <div className="font-sans text-sm flex flex-col h-full">
+         <div className="flex flex-col flex-1 gap-3 mb-4 overflow-y-auto px-2">
+            {/* messages */}
             {messages.map((msg, index) => (
                <div
                   onCopy={onCopySelection}
+                  ref={index === messages.length - 1 ? lastMessageRef : null}
                   key={index}
                   className={`px-5 py-3 rounded-xl ${msg.role === 'user' ? 'bg-blue-600 text-white self-end' : 'bg-gray-100 text-black self-start'}`}
                >
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
                </div>
             ))}
+            {/* typing indicator */}
             {isBotTyping && (
                <div className="flex px-3 py-3 gap-1 self-start bg-gray-200 rounded-2xl">
                   <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse" />
@@ -97,12 +112,17 @@ const ChatBot = () => {
                   <div className="w-2 h-2 rounded-full bg-gray-600 animate-pulse [animation-delay:0.4s]" />
                </div>
             )}
+            {error.length > 0 ? (
+               <p className="px-5 py-3 rounded-xl bg-red-200 text-red-800 text-xs self-center">
+                  {error}
+               </p>
+            ) : null}
          </div>
+         {/* text box */}
          <form
             onSubmit={submitHandler}
             onKeyDown={onKeyDown}
             className="flex flex-col gap-2 items-end border-2 p-4 rounded-xl"
-            ref={formRef}
          >
             <Textarea
                {...register('prompt', {
@@ -112,6 +132,7 @@ const ChatBot = () => {
                className="resize-none border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                placeholder="Ask anything"
                maxLength={1000}
+               autoFocus
             />
             <Button
                disabled={!formState.isValid}
