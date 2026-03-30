@@ -1,9 +1,17 @@
+import notificationSound from '@/assets/sounds/notification.mp3';
+import popSound from '@/assets/sounds/pop.mp3';
 import axios from 'axios';
 import { useState } from 'react';
 import type { ChatFormData, ChatResponse, Message } from '../../types';
 import ChatInput from './ChatInput';
 import ChatMessages from './ChatMessages';
 import { TypingIndicator } from './TypingIndicator';
+
+const popAudio = new Audio(popSound);
+popAudio.volume = 0.2;
+
+const notificationAudio = new Audio(notificationSound);
+notificationAudio.volume = 0.2;
 
 const ChatBot = () => {
    const [messages, setMessages] = useState<Message[]>([]);
@@ -21,7 +29,7 @@ const ChatBot = () => {
       ]);
       setIsBotTyping(true);
       setError('');
-
+      popAudio.play();
       try {
          const { data } = await axios.post<ChatResponse>('/api/chat', {
             prompt,
@@ -34,6 +42,7 @@ const ChatBot = () => {
                role: 'bot',
             },
          ]); // with prev lambda funct use the latest version of the messages array
+         notificationAudio.play();
       } catch (err) {
          setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
