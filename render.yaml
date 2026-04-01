@@ -12,7 +12,7 @@ services:
    - type: web
      name: filmhub-help-chatbot-client
      runtime: static
-     buildCommand: curl -fsSL https://bun.sh/install | bash && export BUN_INSTALL="$HOME/.bun" && export PATH="$BUN_INSTALL/bin:$PATH" && bun install && bun --cwd packages/client run build
+     buildCommand: cd packages/client && npm install && npm run build
      staticPublishPath: packages/client/dist
      routes:
         - type: rewrite
