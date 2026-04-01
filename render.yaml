@@ -11,13 +11,6 @@ services:
           value: 10000
    - type: web
      name: filmhub-help-chatbot-client
-     runtime: static
-     buildCommand: cd packages/client && npm install && npm run build
-     staticPublishPath: packages/client/dist
-     routes:
-        - type: rewrite
-          source: /api/*
-          destination: https://filmhub-help-chatbot-api.onrender.com/api/*
-        - type: rewrite
-          source: /*
-          destination: /index.html
+     runtime: docker
+     dockerfilePath: ./Dockerfile.client
+     plan: free
