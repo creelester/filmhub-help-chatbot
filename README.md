@@ -17,10 +17,12 @@ This project was created using `bun init` in bun v1.3.11. [Bun](https://bun.com)
 ## Deploy (Render)
 
 This repo includes a `render.yaml` Blueprint that deploys:
+
 - API service from `packages/server`
 - Static frontend from `packages/client`
 
 Quick deploy steps:
+
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. In Render, click **New > Blueprint** and connect this repo.
 3. Set `OPENAI_API_KEY` when prompted.
